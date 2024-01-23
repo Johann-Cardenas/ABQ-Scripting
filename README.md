@@ -1,8 +1,8 @@
 # Abaqus Scripting
 Hi there! These are my Python scripts to:
-    a) Create Abaqus input files (.inp)
-    b) Extract information from Abaqus output databases (.odb)
-    c) Analyze and visualize data parsed from Abaqus output databases
+- Create Abaqus input files (.inp)
+- Extract information from Abaqus output databases (.odb)
+- Analyze and visualize data parsed from Abaqus output databases
 
 > [!IMPORTANT]
 > Although I am pleased to share my codes with the broader community for education, research and development purposes, I do not take any responsibility for the results obtained. You are responsible for your results.
@@ -13,11 +13,11 @@ Hi there! These are my Python scripts to:
 
 ## Requirements
 > [!NOTE]
-> Abaqus 2021 or later version. Older output database files need to be upgraded first. 
-> Python 3 or later version. You might need to install additional packages to run the scripts.
+> - **Abaqus 2021** or later version. Older output database files need to be upgraded first. 
+> - **Python 3** or later version. You might need to install additional packages to run the scripts.
 
 ## Repository Structure
-As of January 2023, the repository is organized as follows:
+As of January 2024, the repository is organized as follows:
 
 ### Data Extraction
 Contains the following scripts:
@@ -37,15 +37,22 @@ The script will output:
 - As many .txt files as time steps are contained in the .odb, including nodal information for the strain/stress/displacement field.
 
 ### Scientific Visualization
+These scripts require .txt file containing nodal information per time step, as output by the script '2.Extract_Responses.py'.
 
+#### **Plot_Depth.py:**
+Creates 1D and 2D visualization of strain/stress fields across the depth of a pavement structure.
 
+#### **Plot_Main.py:**
+Creates 1D and 2D visualization of strain/stress fields across the lenght and width of a pavement structure.
 
-==
-> [!IMPORTANT]
-> Codes might contain bugs, you are responsible for your results.
+#### **Plot_U2.py:**
+Creates 2D (top view) and 3D visualization of the displacement field.
+
+#### **Plot_U2_Animation.py:**
+Creates a .gif animation by concatenating 3D visualization of the displacement field across time steps.
 
 > [!WARNING]
-> Settings might need to be adjusted.
-
+> Settings might need to be adjusted to your specific needs.
 
 > [!CAUTION]
+> Codes might contain bugs, and might not be optimized for performance.
