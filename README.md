@@ -5,7 +5,7 @@ Hi there! These are my Python scripts to:
 - Analyze and visualize data parsed from Abaqus output databases
 
 > [!IMPORTANT]
-> Although I am pleased to share my codes with the broader community for education, research and development purposes, I do not take any responsibility for the results obtained. You are responsible for your results.
+> Although I am pleased to share my codes with the broader community for education, research and development purposes, I do not take any responsibility for the results obtained. You are fully responsible for your results.
 > **Attribution:** If you use this code for academic of research purposes, proper attribution to the original author (myself) is appreciated.
 
 > [!TIP]
@@ -17,6 +17,9 @@ Hi there! These are my Python scripts to:
 > - **Python 3** or later version. You might need to install additional packages to run the scripts.
 
 ## Repository Structure
+> [!WARNING]
+> Codes might contain bugs, and might not be optimized for performance.
+
 As of January 2024, the repository is organized as follows:
 
 ### Data Extraction
@@ -36,8 +39,8 @@ To run this script, you need to previously extract:
 The script will output:
 - As many .txt files as time steps are contained in the .odb, including nodal information for the strain/stress/displacement field.
 
-> [!WARNING]
-> Codes might contain bugs, and might not be optimized for performance.
+> [!TIP]
+> Familiarize with the Abaqus GUI features in advance to smoothly navigate through the code comments.
 
 ### Scientific Visualization
 These scripts require .txt file containing nodal information per time step, as output by the script '2.Extract_Responses.py'.
@@ -55,7 +58,19 @@ Creates 2D (top view) and 3D visualization of the displacement field.
 #### **Plot_U2_Animation.py:**
 Creates a .gif animation by concatenating 3D visualization of the displacement field across time steps.
 
-> [!WARNING]
-> Codes might contain bugs, and might not be optimized for performance.
+> [!TIP]
+> By default, the code outputs a set of plots for each time step. To output a single plot, uncomment the corresponding line in the code.
 
+### Dynamic Modulus
+Creates a Prony series fit of the dynamic modulus master curve based on E* or AMPT test data, and outputs the coefficients of the Prony series.
+The prony terms can be used to create a viscoelastic material model in Abaqus.
 
+> [!TIP]
+> Uncomment unrequired plots before executing the code.
+
+### Temperature Gradient
+Creates a temperature gradient fit based on initial and final temperature data, and outputs temperatures values at different depths of a pavement structure.
+The model parameters can be modified to meet specific needs (curve shape, gradient rate, etc)
+
+> [!TIP]
+> Understand the influence of each parameter in advance to control the features of the code.
