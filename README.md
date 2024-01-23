@@ -36,8 +36,12 @@ To run this script, you need to previously extract:
 The script will output:
 - As many .txt files as time steps are contained in the .odb, including nodal information for the strain/stress/displacement field.
 
+> [!WARNING]
+> Codes might contain bugs, and might not be optimized for performance.
+
 ### Scientific Visualization
 These scripts require .txt file containing nodal information per time step, as output by the script '2.Extract_Responses.py'.
+Some of the scripts might contain additional instructions within the code to be uncommented, depending on the visualization needs.
 
 #### **Plot_Depth.py:**
 Creates 1D and 2D visualization of strain/stress fields across the depth of a pavement structure.
@@ -52,7 +56,6 @@ Creates 2D (top view) and 3D visualization of the displacement field.
 Creates a .gif animation by concatenating 3D visualization of the displacement field across time steps.
 
 > [!WARNING]
-> Settings might need to be adjusted to your specific needs.
-
-> [!CAUTION]
 > Codes might contain bugs, and might not be optimized for performance.
+
+
