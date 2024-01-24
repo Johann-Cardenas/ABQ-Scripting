@@ -1,0 +1,17 @@
+#!/bin/bash
+#SBATCH --job-name="LV_P2_SL2_tire18"
+#SBATCH --partition=alqadi-himem
+#SBATCH --nodes=1
+#SBATCH --mem=950G
+#SBATCH --export=ALL
+#SBATCH --ntasks-per-node=72
+#SBATCH --time 96:00:00
+#SBATCH --mail-user=johannc2@illinois.edu
+#SBATCH --mail-type=ALL
+##
+module use /projects/eng/modulefiles
+module load abaqus/2021
+module load intel/18.0
+module load anaconda/2
+unset SLURM_GTIDS
+abaqus inp=LV_P2_SL2_tire18 job=LV_P2_SL2_tire18 oldjob=LV_P2_SL2_tire10 user=Nonlinear_Anisotropic scratch=/scratch/users/johannc2/ cpus=72 memory=950000mb mp_mode=mpi interactive

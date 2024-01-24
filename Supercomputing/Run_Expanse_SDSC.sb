@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+#SBATCH --job-name=LV_P5_SL3
+#SBATCH --partition=compute
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=128
+###SBATCH --cpus-per-task=4
+#SBATCH --account=uic430
+#SBATCH --mem=240G
+#SBATCH --time=48:00:00
+#SBATCH --output=abaqus.o%j.%N
+#SBATCH --licenses=abaqus:34
+#SBATCH --mail-user=johannc2@illinois.edu
+#SBATCH --mail-type=ALL
+
+module reset
+export MODULEPATH=/expanse/projects/qstore/installs/modulefiles:$MODULEPATH
+module load abaqus/2022
+module load cpu/0.15.4
+module load intel/19.1.1.217
+unset SLURM_GTIDS
+
+abq2022 inp=LV_P5_SL3 job=LV_P5_SL3 user=Nonlinear_Anisotropic scratch="/scratch/$USER/job_$SLURM_JOBID" cpus=128 mp_mode=mpi interactive
