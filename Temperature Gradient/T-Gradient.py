@@ -25,7 +25,7 @@ aa1 = 0.0021   # ThermaL Conductivity, AC Layer [Kcal/hmC]
 aa2 = 0.0030   # ThermaL Conductivity, Base Layer [Kcal/hmC]
 ll1 = 1.38     # Thermal Diffusivity, AC Layer [mm^2/s]
 ll2 = 1.00     # Thermal Diffusivity, Base Layer [mm^2/s]
-H = 0.085      # Thickness of AC Layer [m]
+H = 0.155      # Thickness of AC Layer [m]
 c = 18         # Temperature at the surface [C]  
 Tmax = 21.00    # Maximum Temperature at the bottom [C]
 Tmin = 15.00
@@ -71,15 +71,14 @@ Wj = np.array([-8684.606112670226 + 1j * 154574.2053305275,
                -103.4901907062327 + 1j * 41.10935881231860,
                -103.4901907062327 - 1j * 41.10935881231860])/10
 
-
 ##################################################
 ########          Vertical Mesh           ######## 
 ##################################################
 
 # Layer 1
-NElem = 9
-Thick = 50
-Bias = 1.01
+NElem = 8
+Thick = 40
+Bias = 1.10
 
 Zn = np.zeros(NElem + 1)
 Z = np.zeros(NElem + 1)
@@ -91,8 +90,8 @@ for i in range(2, NElem + 1):
     Z[i] = np.sum(Zn[:i + 1]) / 1000
 
 # Layer 2
-NElem2 = 8
-Thick2 = 50
+NElem2 = 12
+Thick2 = 75
 Bias2 = 1.30
 
 Zn = np.pad(Zn, (0, NElem2), 'constant')  # Extend the Zn array for Layer 2
@@ -104,12 +103,21 @@ for i in range(NElem + 2, NElem + NElem2 + 1):
     Zn[i] = Zn[i - 1] * Bias2 ** (1 / (NElem2 - 1))
     Z[i] = np.sum(Zn[:i + 1]) / 1000
 
-
 # Layer 3
+NElem3 = 5 
+Thick3 = 40;
+Bias3 = 1.01  
 
+Zn = np.pad(Zn, (0, NElem3), 'constant')  # Extend the Zn array for Layer 2
+Z = np.pad(Z, (0, NElem3), 'constant')  # Extend the Z array for Layer 2
+Zn[NElem + NElem2 + 1] = Thick3 * (Bias3 ** (1 / (NElem3 - 1)) - 1) / (Bias3 ** (NElem3 / (NElem3- 1)) - 1)
+Z[NElem + NElem2 + 1] =Z [NElem+NElem2] + Zn[NElem + NElem2+ 1]/1000
 
+for i in range(NElem + NElem2 + 2, NElem + NElem2 + NElem3 + 1):
+    Zn[i] = Zn[i - 1] * Bias3 ** (1 / (NElem3 - 1))
+    Z[i] = np.sum(Zn[:i + 1]) / 1000
 
-Zn, Z  # Displaying the arrays to confirm successful translation
+Zn, Z  # Displaying the arrays to confirm successful translatio
 
 # Solving the Integral
 Temp = np.zeros(len(Z))
@@ -126,30 +134,57 @@ for tt in range(len(Z)):
     Int=0
 
 TOC = np.column_stack((1000 * Z, Temp + c))
-TOC
 
-# Printing the Output Table
-print("Z[mm]  T[C]")
-for r in range(len(Z)):
-    print(f"{1000 * Z[r]:.2f}  {Temp[r] + c:.2f}")
 
-# Note: The plotting part will be translated next, using matplotlib in Python
-# For now, let's check the output of the translated part
-TOC  # Displaying the Temperature-Depth table
+# Put the T values in an array ytemp
+Zcoord = np.zeros(len(Z))
+for i in range(len(Z)):
+    Zcoord[i] = round(Z[i]*1000,2)
+
+
+ytemp = np.zeros(len(Z))
+for i in range(len(Z)):
+    ytemp[i] = round(Temp[i] + c,2)
+    
+print(Zcoord)
+print(ytemp)
+
+
+# Setting up for contour plot
+temp_range = np.linspace(10, 30, 500)
+depth_range = np.linspace(0, Thick + Thick2 + Thick3, 500)
+Temp_grid, Depth_grid = np.meshgrid(temp_range, depth_range)
+
+# Dummy contour values for demonstration
+# In a real scenario, this should be replaced with actual temperature distribution data
+Contour_values = np.zeros_like(Temp_grid)
+for i in range(len(Zcoord)):
+    depth = Zcoord[i]
+    temperature = ytemp[i]
+    Contour_values[np.where(Depth_grid >= depth)] = temperature
+
 
 # Plotting the results
 plt.figure()
 
-plt.plot(Temp + c, Z * 1000, "-o", color='r', markersize=5, 
+plt.contourf(Temp_grid, Depth_grid, Contour_values, alpha=0.5, cmap='coolwarm')
+cbar = plt.colorbar()
+cbar.set_label('T (°C)', fontweight=str('bold'))
+
+plt.plot(ytemp, Zcoord, "-o", color='k', markersize=5, 
          markeredgecolor='red', markerfacecolor=[1, 0.6, 0.6], label='LV-P1-SL0')
-plt.xlabel('Temperature (C)', fontweight=str('bold'))
+plt.xlabel('Temperature (°C)', fontweight=str('bold'))
 plt.ylabel('Depth (mm)', fontweight=str('bold'))
-plt.legend(loc='upper right')
-plt.xlim([19, 21])
-plt.ylim([-10, Thick + Thick2])
+plt.xlim([18, 21])
+plt.ylim([0, Thick + Thick2 + Thick3])
+
+# Add ticks in X and Y
+plt.xticks([18, 19, 20, 21])
+plt.yticks([0, 25, 50, 75, 100, 125, 150])
+
 plt.gca().invert_yaxis()  # Reversing the Y-axis
 plt.grid(True, which='both', linestyle='--', linewidth='0.5')
-plt.minorticks_on()
+#plt.minorticks_on()
 
 
 plt.show()
