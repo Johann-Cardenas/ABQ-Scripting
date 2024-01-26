@@ -16,19 +16,18 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 ##################################################
 ########            User Inputs           ######## 
 ##################################################
 
-# Global variables (assumed to be accessible in all function scopes in the original MATLAB code)
-aa1 = 0.0021
-aa2 = 0.0030
-ll1 = 1.38
-ll2 = 1.00
-H = 0.085
-c = 18
-Tmax = 21.00
+# Global Variables 
+aa1 = 0.0021   # ThermaL Conductivity, AC Layer [Kcal/hmC]
+aa2 = 0.0030   # ThermaL Conductivity, Base Layer [Kcal/hmC]
+ll1 = 1.38     # Thermal Diffusivity, AC Layer [mm^2/s]
+ll2 = 1.00     # Thermal Diffusivity, Base Layer [mm^2/s]
+H = 0.085      # Thickness of AC Layer [m]
+c = 18         # Temperature at the surface [C]  
+Tmax = 21.00    # Maximum Temperature at the bottom [C]
 Tmin = 15.00
 t = 6
 
@@ -59,7 +58,7 @@ Pj = np.array([128.3767707781087 + 1j * 16.66062584162301,
                87.76434640082609 + 1j * 119.2185389830121,
                87.76434640082609 - 1j * 119.2185389830121,
                52.25453367344361 + 1j * 157.2952904563926,
-               52.25453367344361 - 1j * 157.2952904563926])
+               52.25453367344361 - 1j * 157.2952904563926])/10
 
 Wj = np.array([-8684.606112670226 + 1j * 154574.2053305275,
                -8684.606112670226 - 1j * 154574.2053305275,
@@ -70,27 +69,47 @@ Wj = np.array([-8684.606112670226 + 1j * 154574.2053305275,
                1863.271916070924 - 1j * 2533.223820180114,
                1863.271916070924 + 1j * 2533.223820180114,
                -103.4901907062327 + 1j * 41.10935881231860,
-               -103.4901907062327 - 1j * 41.10935881231860])
+               -103.4901907062327 - 1j * 41.10935881231860])/10
 
-# Node coordinates calculations for Layer 1 and Layer 2
-NElem, Thick, Bias = 9, 50, 1.01
-NElem2, Thick2, Bias2 = 8, 50, 1.30
 
-Zn = np.zeros(NElem + NElem2 + 1)
-Zn[1] = Thick * (Bias**(1 / (NElem - 1)) - 1) / (Bias**(NElem / (NElem - 1)) - 1)
-Z = np.zeros(NElem + NElem2 + 1)
+##################################################
+########          Vertical Mesh           ######## 
+##################################################
+
+# Layer 1
+NElem = 9
+Thick = 50
+Bias = 1.01
+
+Zn = np.zeros(NElem + 1)
+Z = np.zeros(NElem + 1)
+Zn[1] = Thick * (Bias ** (1 / (NElem - 1)) - 1) / (Bias ** (NElem / (NElem - 1)) - 1)
 Z[1] = Zn[1] / 1000
 
-for i in range(2, NElem):
-    Zn[i] = Zn[i - 1] * Bias**(1 / (NElem - 1))
+for i in range(2, NElem + 1):
+    Zn[i] = Zn[i - 1] * Bias ** (1 / (NElem - 1))
     Z[i] = np.sum(Zn[:i + 1]) / 1000
 
-Zn[NElem] = Thick2
+# Layer 2
+NElem2 = 8
+Thick2 = 50
+Bias2 = 1.30
 
-# Completing Node coordinates calculations for Layer 2
-for i in range(NElem, NElem + NElem2 + 1):
-    Zn[i] = Zn[i - 1] * Bias2**(1 / (NElem2 - 1))
+Zn = np.pad(Zn, (0, NElem2), 'constant')  # Extend the Zn array for Layer 2
+Z = np.pad(Z, (0, NElem2), 'constant')  # Extend the Z array for Layer 2
+Zn[NElem + 1] = Thick2 * (Bias2 ** (1 / (NElem2 - 1)) - 1) / (Bias2 ** (NElem2 / (NElem2 - 1)) - 1)
+Z[NElem + 1] =Z [NElem] + Zn[NElem + 1]/1000
+
+for i in range(NElem + 2, NElem + NElem2 + 1):
+    Zn[i] = Zn[i - 1] * Bias2 ** (1 / (NElem2 - 1))
     Z[i] = np.sum(Zn[:i + 1]) / 1000
+
+
+# Layer 3
+
+
+
+Zn, Z  # Displaying the arrays to confirm successful translation
 
 # Solving the Integral
 Temp = np.zeros(len(Z))
@@ -104,8 +123,10 @@ for tt in range(len(Z)):
         Int1 = w * Fj
         Int += Int1
     Temp[tt] = Int
+    Int=0
 
 TOC = np.column_stack((1000 * Z, Temp + c))
+TOC
 
 # Printing the Output Table
 print("Z[mm]  T[C]")
@@ -119,15 +140,16 @@ TOC  # Displaying the Temperature-Depth table
 # Plotting the results
 plt.figure()
 
-
 plt.plot(Temp + c, Z * 1000, "-o", color='r', markersize=5, 
          markeredgecolor='red', markerfacecolor=[1, 0.6, 0.6], label='LV-P1-SL0')
 plt.xlabel('Temperature (C)', fontweight=str('bold'))
 plt.ylabel('Depth (mm)', fontweight=str('bold'))
 plt.legend(loc='upper right')
-plt.xlim([18, 23])
+plt.xlim([19, 21])
 plt.ylim([-10, Thick + Thick2])
-#plt.gca().invert_yaxis()  # Reversing the Y-axis
+plt.gca().invert_yaxis()  # Reversing the Y-axis
 plt.grid(True, which='both', linestyle='--', linewidth='0.5')
+plt.minorticks_on()
+
 
 plt.show()
