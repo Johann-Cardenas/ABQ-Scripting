@@ -165,16 +165,29 @@ for i in range(len(Zcoord)):
 
 
 # Plotting the results
-plt.figure()
+plt.figure(figsize=(3,6))
 
-plt.contourf(Temp_grid, Depth_grid, Contour_values, alpha=0.5, cmap='coolwarm')
-cbar = plt.colorbar()
+cbar_ticks = np.arange(18, 21.1, 1.00)  # Values from 18 to 21 with a step of 0.25
+levels = np.unique(np.concatenate([cbar_ticks, Contour_values.ravel()]))
+
+contourf_plot = plt.contourf(Temp_grid, Depth_grid, Contour_values, levels=levels, alpha=0.5, cmap='hot_r')
+
+cbar = plt.colorbar(contourf_plot, ticks=cbar_ticks)
 cbar.set_label('T (°C)', fontweight=str('bold'))
 
 plt.plot(ytemp, Zcoord, "-o", color='k', markersize=5, 
-         markeredgecolor='red', markerfacecolor=[1, 0.6, 0.6], label='LV-P1-SL0')
-plt.xlabel('Temperature (°C)', fontweight=str('bold'))
+         markeredgecolor='red', markerfacecolor=[1, 0.6, 0.6])
+
+plt.axhline(y=40, color='k', linestyle='-', linewidth='0.5')
+plt.axhline(y=115, color='k', linestyle='-', linewidth='0.5')
+plt.axhline(y=155, color='k', linestyle='-', linewidth='0.5')
+
+plt.text(18.1, 10, 'AC1', bbox=dict(facecolor='white', edgecolor='black', pad=2.0))
+plt.text(18.1, 50, 'AC2', bbox=dict(facecolor='white', edgecolor='black', pad=2.0))
+plt.text(18.1, 125, 'AC3', bbox=dict(facecolor='white', edgecolor='black', pad=2.0))
+
 plt.ylabel('Depth (mm)', fontweight=str('bold'))
+plt.xlabel('Temperature (°C)', fontweight=str('bold'))
 plt.xlim([18, 21])
 plt.ylim([0, Thick + Thick2 + Thick3])
 
@@ -183,8 +196,9 @@ plt.xticks([18, 19, 20, 21])
 plt.yticks([0, 25, 50, 75, 100, 125, 150])
 
 plt.gca().invert_yaxis()  # Reversing the Y-axis
-plt.grid(True, which='both', linestyle='--', linewidth='0.5')
+#plt.grid(True, which='both', linestyle='--', linewidth='0.5')
 #plt.minorticks_on()
-
+plt.tight_layout
+plt.savefig('T-Gradient.png', dpi=300, bbox_inches='tight')
 
 plt.show()
