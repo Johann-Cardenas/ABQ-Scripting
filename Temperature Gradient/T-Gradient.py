@@ -13,6 +13,10 @@
 #                  By: Johann J Cardenas
 # '----------------'  '----------------'  '----------------' 
 
+# NOTE!: Based on J. Hernandez's derivation for the temperature gradient in a two-layered pavement structure
+# following the formulation given by Wang et al. (2009) in the paper:
+# 'Analytical Approach to Predicting Temperature Fields in Multilayered Pavement Systems'
+
 import numpy as np
 import matplotlib.pyplot as plt
 import math
@@ -26,10 +30,10 @@ aa1 = 0.0021   # ThermaL Conductivity, AC Layer [Kcal/hmC]
 aa2 = 0.0030   # ThermaL Conductivity, Base Layer [Kcal/hmC]
 ll1 = 1.38     # Thermal Diffusivity, AC Layer [mm^2/s]
 ll2 = 1.00     # Thermal Diffusivity, Base Layer [mm^2/s
-c = 18         # Temperature at the surface [C]  
-Tmax = 21.00   # Maximum Temperature at the bottom [C]
-Tmin = 15.00   # Minimum Temperature at the bottom [C]
-t = 6         # Shape Parameter
+c = 18         # Initial Temperature [C]  
+Tmax = 21.00   # Maximum Temperature [C]
+Tmin = 15.00   # Minimum Temperature [C]
+t = 6          # Shape Parameter 0<t<24
 
 # AC Structure
 Labels = ['SL', 'IML', 'BL']
