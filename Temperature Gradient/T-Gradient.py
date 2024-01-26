@@ -15,6 +15,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 ##################################################
 ########            User Inputs           ######## 
@@ -24,14 +25,24 @@ import matplotlib.pyplot as plt
 aa1 = 0.0021   # ThermaL Conductivity, AC Layer [Kcal/hmC]
 aa2 = 0.0030   # ThermaL Conductivity, Base Layer [Kcal/hmC]
 ll1 = 1.38     # Thermal Diffusivity, AC Layer [mm^2/s]
-ll2 = 1.00     # Thermal Diffusivity, Base Layer [mm^2/s]
-H = 0.155      # Thickness of AC Layer [m]
+ll2 = 1.00     # Thermal Diffusivity, Base Layer [mm^2/s
 c = 18         # Temperature at the surface [C]  
-Tmax = 21.00    # Maximum Temperature at the bottom [C]
-Tmin = 15.00
-t = 6
+Tmax = 21.00   # Maximum Temperature at the bottom [C]
+Tmin = 15.00   # Minimum Temperature at the bottom [C]
+t = 6         # Shape Parameter
 
-# Functions U, FFs, Fs as provided in the user's MATLAB code
+# AC Structure
+Labels = ['SL', 'IML', 'BL']
+MyThicks = [40, 75, 40]    # Thickness of each layer [mm]
+NElem = [8, 12, 5]         # Number of elements in each layer
+Bias = [1.10, 1.30, 1.01]  # Biasing factor for each layer
+
+H = sum(MyThicks)/1000      
+
+##################################################
+########    Functions and Parameters      ######## 
+##################################################
+
 def U(z, s, t):
     r1 = np.sqrt(s / aa1)
     r2 = np.sqrt(s / aa2)
@@ -47,8 +58,7 @@ def FFs(p, z, t):
 def Fs(s, t):
     return (Tmax + Tmin) / 2 / s + 6 * np.pi * (Tmax - Tmin) / (np.pi**2 + 144 * s**2)
 
-# Translating the main MATLAB script
-# Defining parameters for the quadrature formula
+# Parameters of the the quadrature formula
 Pj = np.array([128.3767707781087 + 1j * 16.66062584162301,
                128.3767707781087 - 1j * 16.66062584162301,
                122.2613148416215 + 1j * 50.12719263676864,
@@ -72,52 +82,40 @@ Wj = np.array([-8684.606112670226 + 1j * 154574.2053305275,
                -103.4901907062327 - 1j * 41.10935881231860])/10
 
 ##################################################
-########          Vertical Mesh           ######## 
+########            Calculations          ######## 
 ##################################################
 
 # Layer 1
-NElem = 8
-Thick = 40
-Bias = 1.10
-
-Zn = np.zeros(NElem + 1)
-Z = np.zeros(NElem + 1)
-Zn[1] = Thick * (Bias ** (1 / (NElem - 1)) - 1) / (Bias ** (NElem / (NElem - 1)) - 1)
+Zn = np.zeros(NElem[0] + 1)
+Z = np.zeros(NElem[0] + 1)
+Zn[1] = MyThicks[0] * (Bias[0] ** (1 / (NElem[0] - 1)) - 1) / (Bias[0] ** (NElem[0]/ (NElem[0] - 1)) - 1)
 Z[1] = Zn[1] / 1000
 
-for i in range(2, NElem + 1):
-    Zn[i] = Zn[i - 1] * Bias ** (1 / (NElem - 1))
+for i in range(2, NElem[0] + 1):
+    Zn[i] = Zn[i - 1] * Bias[0] ** (1 / (NElem[0] - 1))
     Z[i] = np.sum(Zn[:i + 1]) / 1000
 
-# Layer 2
-NElem2 = 12
-Thick2 = 75
-Bias2 = 1.30
+if len(MyThicks) > 1:
+    # Layer 2
+    Zn = np.pad(Zn, (0, NElem[1]), 'constant')  # Extend the Zn array for Layer 2
+    Z = np.pad(Z, (0, NElem[1]), 'constant')  # Extend the Z array for Layer 2
+    Zn[NElem[0] + 1] = MyThicks[1] * (Bias[1] ** (1 / (NElem[1] - 1)) - 1) / (Bias[1] ** (NElem[1] / (NElem[1] - 1)) - 1)
+    Z[NElem[0] + 1] =Z [NElem[0]] + Zn[NElem[0] + 1]/1000
 
-Zn = np.pad(Zn, (0, NElem2), 'constant')  # Extend the Zn array for Layer 2
-Z = np.pad(Z, (0, NElem2), 'constant')  # Extend the Z array for Layer 2
-Zn[NElem + 1] = Thick2 * (Bias2 ** (1 / (NElem2 - 1)) - 1) / (Bias2 ** (NElem2 / (NElem2 - 1)) - 1)
-Z[NElem + 1] =Z [NElem] + Zn[NElem + 1]/1000
+    for i in range(NElem[0] + 2, NElem[0] + NElem[1] + 1):
+        Zn[i] = Zn[i - 1] * Bias[1] ** (1 / (NElem[1] - 1))
+        Z[i] = np.sum(Zn[:i + 1]) / 1000
 
-for i in range(NElem + 2, NElem + NElem2 + 1):
-    Zn[i] = Zn[i - 1] * Bias2 ** (1 / (NElem2 - 1))
-    Z[i] = np.sum(Zn[:i + 1]) / 1000
+if len(MyThicks) > 2:
+    # Layer 3
+    Zn = np.pad(Zn, (0, NElem[2]), 'constant')  # Extend the Zn array for Layer 3
+    Z = np.pad(Z, (0, NElem[2]), 'constant')  # Extend the Z array for Layer 3
+    Zn[NElem[0] + NElem[1] + 1] = MyThicks[2] * (Bias[2] ** (1 / (NElem[2] - 1)) - 1) / (Bias[2] ** (NElem[2] / (NElem[2]- 1)) - 1)
+    Z[NElem[0] + NElem[1] + 1] =Z [NElem[0] + NElem[1]] + Zn[NElem[0] + NElem[1] + 1]/1000
 
-# Layer 3
-NElem3 = 5 
-Thick3 = 40;
-Bias3 = 1.01  
-
-Zn = np.pad(Zn, (0, NElem3), 'constant')  # Extend the Zn array for Layer 2
-Z = np.pad(Z, (0, NElem3), 'constant')  # Extend the Z array for Layer 2
-Zn[NElem + NElem2 + 1] = Thick3 * (Bias3 ** (1 / (NElem3 - 1)) - 1) / (Bias3 ** (NElem3 / (NElem3- 1)) - 1)
-Z[NElem + NElem2 + 1] =Z [NElem+NElem2] + Zn[NElem + NElem2+ 1]/1000
-
-for i in range(NElem + NElem2 + 2, NElem + NElem2 + NElem3 + 1):
-    Zn[i] = Zn[i - 1] * Bias3 ** (1 / (NElem3 - 1))
-    Z[i] = np.sum(Zn[:i + 1]) / 1000
-
-Zn, Z  # Displaying the arrays to confirm successful translatio
+    for i in range(NElem[0] + NElem[1] + 2, NElem[0] + NElem[1] + NElem[2] + 1):
+        Zn[i] = Zn[i - 1] * Bias[2] ** (1 / (NElem[2] - 1))
+        Z[i] = np.sum(Zn[:i + 1]) / 1000
 
 # Solving the Integral
 Temp = np.zeros(len(Z))
@@ -135,12 +133,10 @@ for tt in range(len(Z)):
 
 TOC = np.column_stack((1000 * Z, Temp + c))
 
-
-# Put the T values in an array ytemp
+# Put the T values in arrays
 Zcoord = np.zeros(len(Z))
 for i in range(len(Z)):
     Zcoord[i] = round(Z[i]*1000,2)
-
 
 ytemp = np.zeros(len(Z))
 for i in range(len(Z)):
@@ -149,25 +145,24 @@ for i in range(len(Z)):
 print(Zcoord)
 print(ytemp)
 
+##################################################
+########              PLOT               ######## 
+##################################################
+# NOTE! Customize the ticks of X and Y axis according to your needs
 
 # Setting up for contour plot
-temp_range = np.linspace(10, 30, 500)
-depth_range = np.linspace(0, Thick + Thick2 + Thick3, 500)
-Temp_grid, Depth_grid = np.meshgrid(temp_range, depth_range)
-
-# Dummy contour values for demonstration
-# In a real scenario, this should be replaced with actual temperature distribution data
+Temp_grid, Depth_grid = np.meshgrid(np.linspace(10, 30, 500), np.linspace(0, sum(MyThicks), 500))
 Contour_values = np.zeros_like(Temp_grid)
+
 for i in range(len(Zcoord)):
     depth = Zcoord[i]
     temperature = ytemp[i]
     Contour_values[np.where(Depth_grid >= depth)] = temperature
 
-
 # Plotting the results
 plt.figure(figsize=(3,6))
 
-cbar_ticks = np.arange(18, 21.1, 1.00)  # Values from 18 to 21 with a step of 0.25
+cbar_ticks = np.arange(math.floor(min(ytemp)), math.ceil(max(ytemp))+0.01, 1.00)  # Values from 18 to 21 with a step of 0.25
 levels = np.unique(np.concatenate([cbar_ticks, Contour_values.ravel()]))
 
 contourf_plot = plt.contourf(Temp_grid, Depth_grid, Contour_values, levels=levels, alpha=0.5, cmap='hot_r')
@@ -178,26 +173,20 @@ cbar.set_label('T (°C)', fontweight=str('bold'))
 plt.plot(ytemp, Zcoord, "-o", color='k', markersize=5, 
          markeredgecolor='red', markerfacecolor=[1, 0.6, 0.6])
 
-plt.axhline(y=40, color='k', linestyle='-', linewidth='0.5')
-plt.axhline(y=115, color='k', linestyle='-', linewidth='0.5')
-plt.axhline(y=155, color='k', linestyle='-', linewidth='0.5')
-
-plt.text(18.1, 10, 'AC1', bbox=dict(facecolor='white', edgecolor='black', pad=2.0))
-plt.text(18.1, 50, 'AC2', bbox=dict(facecolor='white', edgecolor='black', pad=2.0))
-plt.text(18.1, 125, 'AC3', bbox=dict(facecolor='white', edgecolor='black', pad=2.0))
+for i in range(len(MyThicks)):
+    plt.axhline(y=sum(MyThicks[:i + 1]), color='k', linestyle='-', linewidth='0.5')
+    plt.text(math.floor(min(ytemp))+0.15, sum(MyThicks[:i + 1])-MyThicks[i]+10, Labels[i], bbox=dict(facecolor='white', edgecolor='black', pad=2.0))
 
 plt.ylabel('Depth (mm)', fontweight=str('bold'))
 plt.xlabel('Temperature (°C)', fontweight=str('bold'))
-plt.xlim([18, 21])
-plt.ylim([0, Thick + Thick2 + Thick3])
+plt.xlim([math.floor(min(ytemp)), math.ceil(max(ytemp))])
+plt.ylim([0, sum(MyThicks)])
 
 # Add ticks in X and Y
 plt.xticks([18, 19, 20, 21])
 plt.yticks([0, 25, 50, 75, 100, 125, 150])
-
 plt.gca().invert_yaxis()  # Reversing the Y-axis
-#plt.grid(True, which='both', linestyle='--', linewidth='0.5')
-#plt.minorticks_on()
+
 plt.tight_layout
 plt.savefig('T-Gradient.png', dpi=300, bbox_inches='tight')
 
