@@ -23,21 +23,11 @@ Hi there! These are my Python scripts to:
 As of January 2024, the repository is organized as follows:
 
 ### Data Extraction
-Contains the following scripts:
+These scripts require a .odb file containing the results of a simulation.
+Some of the scripts might contain additional instructions within the code to be uncommented, depending on the visualization needs.
 
-#### **Sets_ODB.py:**
-To run this script '1.Sets_ODB`, you need to previously process:
-- An .odb file. 
-Upon definition of a 'core' region of interest (ROI), the script will output:
-- A .txt file containing all the elements contained in the ROI, and their connectivities.
-- A .txt file containing all the nodes contained in the ROI, and their coordinates.
-
-#### **Extract_Responses.py:**
-To run this script, you need to previously extract:
-- A .txt file containing all the elements contained in a region of interest, and their connectivities.
-- A .txt file containing all the nodes contained in a region of interest, and their coordinates.
-The script will output:
-- As many .txt files as time steps are contained in the .odb, including nodal information for the strain/stress/displacement field.
+- [ ] **Sets_ODB.py:**
+- [ ] **Extract_Responses.py:**
 
 > [!TIP]
 > Familiarize with the Abaqus GUI features in advance to smoothly navigate through the code comments.
@@ -46,17 +36,10 @@ The script will output:
 These scripts require .txt file containing nodal information per time step, as output by the script '2.Extract_Responses.py'.
 Some of the scripts might contain additional instructions within the code to be uncommented, depending on the visualization needs.
 
-#### **Plot_Depth.py:**
-Creates 1D and 2D visualization of strain/stress fields across the depth of a pavement structure.
-
-#### **Plot_Main.py:**
-Creates 1D and 2D visualization of strain/stress fields across the lenght and width of a pavement structure.
-
-#### **Plot_U2.py:**
-Creates 2D (top view) and 3D visualization of the displacement field.
-
-#### **Plot_U2_Animation.py:**
-Creates a .gif animation by concatenating 3D visualization of the displacement field across time steps.
+- [ ] **Plot_Depth.py:**
+- [ ] **Plot_Main.py:**
+- [ ] **Plot_U2.py:**
+- [ ] **Plot_U2_Animation.py:**
 
 > [!TIP]
 > By default, the code outputs a set of plots for each time step. To output a single plot, uncomment the corresponding line in the code.
