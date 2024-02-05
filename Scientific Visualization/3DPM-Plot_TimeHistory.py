@@ -38,7 +38,7 @@ Structure = ['AC1', 'B1', 'SB1', 'SG1']   # Pavement Layers
 MyLabels = ['P-401', 'P-209', 'P-154', 'Subgrade'] # Plot Labels
 Thicks = [75.0, 150.0, 500.0, 14275.0]    # Thickness of each layer
 
-user = 'johan'
+user = 'johannc2'
 directory = f'C:/Users/{user}/Box/FAA Data Project/04_FEM/00_FEM DATA/FAA_South/FAA_South_Responses/{CaseList[0]}/'
 
 # Layer of Analysis
@@ -202,6 +202,7 @@ def plot_E_1DY(strain_component, myData):
         idx = max_E11_idx
         max_strain_value = data[strain_component].max()
         location = data.loc[data[strain_component].idxmax(), ['Xn_elem', 'Yn_elem', 'Zn_elem']]
+        #location
         strain_filtered = [myData[i].loc[(myData[i]['Xn_elem'] == location['Xn_elem']) & (myData[i]['Yn_elem'] == location['Yn_elem']) & (myData[i]['Zn_elem'] == location['Zn_elem']), strain_component] for i in range(len(myData))]
         strain_values = [series.iloc[0]*1000000 for series in strain_filtered]
          
