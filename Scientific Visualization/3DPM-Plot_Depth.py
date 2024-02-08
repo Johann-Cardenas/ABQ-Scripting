@@ -236,14 +236,16 @@ def plot_E_1DY(strain_component, dat):
     filtered_data_sorted = filtered_data.sort_values(by=['Yn_elem', 'Node'], ascending=[False, True])
         
     # Create the line plot
-    plt.figure(figsize=(6, 6))
+    plt.figure(figsize=(5, 5), dpi=300)
     plt.plot(filtered_data_sorted[strain_component]*1000000, filtered_data_sorted['Yn_elem'], 
-             color='b', marker='o', linewidth=3.5, markersize=2.0)
+             color='b', marker='o', linewidth=4.0, markersize=2.5)
     plt.grid(True, linestyle='--', color='0.8', linewidth=0.5)
         
     #plt.title(f'Vertical Profile of {strain_component}', fontweight='bold', fontsize=14)
-    plt.xlabel(f'{label}'+ ' ' + f'{strain_component} ($\mu\epsilon$)', fontweight='bold', fontsize=12)
-    plt.ylabel('Depth (mm)', fontweight='bold', fontsize=12)
+    plt.xlabel(f'{label}'+ ' ' + f'{strain_component} ($\mu\epsilon$)', fontweight='bold', fontsize=14)
+    plt.ylabel('Depth (mm)', fontweight='bold', fontsize=14)
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
     
     # Plot point at location of the maximum strain value
     plt.plot(max_strain_value*1000000, location['Yn_elem'], color='r', 
@@ -255,7 +257,7 @@ def plot_E_1DY(strain_component, dat):
     fig = plt.gcf()
     data_coord = ax.transData.transform((max_strain_value*1000000, location['Yn_elem']))
     fig_coord = fig.transFigure.inverted().transform(data_coord)
-    textbox_y = fig_coord[1] - 0.055
+    textbox_y = fig_coord[1] - 0.065
     textbox_x = fig_coord[0] + 0.075
     
     # Draw a horizontal plot at a given Yn coordinate
@@ -265,7 +267,7 @@ def plot_E_1DY(strain_component, dat):
         
         ax_height = plt.gca().get_ylim()[1] - plt.gca().get_ylim()[0]
         y_axes_coord = (y_ranges[Structure[t]][1] - plt.gca().get_ylim()[0]) / ax_height
-        plt.text(0.026, y_axes_coord - 0.02, MyLabels[t], transform=plt.gca().transAxes, fontsize=10,
+        plt.text(0.026, y_axes_coord - 0.02, MyLabels[t], transform=plt.gca().transAxes, fontsize=12,
              horizontalalignment='left', verticalalignment='top',
              bbox=dict(facecolor='white', alpha=0.0, edgecolor='black', boxstyle='round,pad=0.25'))
         
@@ -280,11 +282,97 @@ def plot_E_1DY(strain_component, dat):
     
     # Position the text box in figure coords to ensure it's always in the same position regardless of data
     props = dict(boxstyle="round4,pad=0.30", edgecolor='grey', facecolor=(1, 1, 1, 1), linewidth=2)
-    plt.gcf().text(textbox_x, textbox_y, textstr, fontsize=10, bbox=props, horizontalalignment='center', verticalalignment='bottom')
+    plt.gcf().text(textbox_x, textbox_y, textstr, fontsize=12, bbox=props, horizontalalignment='center', verticalalignment='bottom')
     
     plt.grid(True)
     
-    plt.savefig(f'{la}'+ '_' +f'{strain_component}_tire{tstep[0]+idx}_VerticalProfile.png', dpi=500, bbox_inches='tight')
+    plt.savefig(f'{la}'+ '_' +f'{strain_component}_tire{tstep[0]+idx}_1DY.png', dpi=500, bbox_inches='tight')
+    plt.show()
+    
+
+
+def plot_E_1DY_multi(strain_components, dat):
+    # Initialize plot
+    plt.figure(figsize=(5, 5), dpi=300)
+    
+    textstr = ['' for _ in strain_components]
+    
+    for strain_component in strain_components:
+        
+        #get index of strain component
+        if strain_component == 'E11':
+            idx_case=0
+        elif strain_component == 'E33':
+            idx_case=1
+        
+        data = dat[idx_case].copy()
+        
+        if strain_component == 'E11':
+            color = 'blue'
+            label = f'$E_{{11}}$'
+            idx = max_E11_idx
+        elif strain_component == 'E33':
+            color = 'green'
+            label = f'$E_{{33}}$'
+            idx = max_E33_idx
+        else:
+            continue  # Skip if the component is not E11 or E33
+        
+        max_strain_value = data[strain_component].max()
+        location = data.loc[data[strain_component].idxmax(), ['Xn_elem', 'Yn_elem', 'Zn_elem']]
+        
+        data_all = myData_all[idx].copy()
+        filtered_data = data_all[(data_all['Xn_elem'] == location['Xn_elem']) & (data_all['Zn_elem'] == location['Zn_elem'])]
+        filtered_data_sorted = filtered_data.sort_values(by=['Yn_elem', 'Node'], ascending=[False, True])
+        
+        # Plotting for each strain component
+        plt.plot(filtered_data_sorted[strain_component]*1000000, filtered_data_sorted['Yn_elem'], 
+                 color=color, marker='o', linewidth=4.0, markersize=2, label=label)
+        
+        # Mark maximum strain value
+        plt.plot(max_strain_value*1000000, location['Yn_elem'], color=color, 
+                 marker='d', markersize=8.0, markeredgecolor='black', markeredgewidth=1.0)
+        
+        textstr[idx_case] = (f"${strain_component}_{{{la}max}}$: {max_strain_value*1000000:.2f} $\mu\epsilon$")
+        
+        
+    for t in range(len(Thicks)):
+        plt.axhline(y=y_ranges[Structure[t]][1], color='k', linestyle='-', linewidth=0.75)
+        #add a label in the right corner of the horizontal line
+        
+        ax_height = plt.gca().get_ylim()[1] - plt.gca().get_ylim()[0]
+        y_axes_coord = (y_ranges[Structure[t]][1] - plt.gca().get_ylim()[0]) / ax_height
+        
+        if t==0:
+            plt.text(0.026, y_axes_coord + 0.02, MyLabels[t], transform=plt.gca().transAxes, fontsize=12,
+             horizontalalignment='left', verticalalignment='top',
+             bbox=dict(facecolor='white', alpha=0.0, edgecolor='black', boxstyle='round,pad=0.25'))
+        else:
+            plt.text(0.026, y_axes_coord - 0.02, MyLabels[t], transform=plt.gca().transAxes, fontsize=12,
+             horizontalalignment='left', verticalalignment='top',
+             bbox=dict(facecolor='white', alpha=0.0, edgecolor='black', boxstyle='round,pad=0.25'))
+        
+    plt.ylim(ymin=filtered_data_sorted['Yn_elem'].min(), ymax=Depth)
+
+    def subtract(x):
+        return f"{Depth - x:.0f}"
+    
+    plt.gca().yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: subtract(x)))  
+        
+    plt.grid(True, linestyle='--', color='0.8', linewidth=0.5)
+    plt.xlabel('Tensile Strain ($\mu\epsilon$)', fontweight='bold', fontsize=14)
+    plt.ylabel('Depth (mm)', fontweight='bold', fontsize=14)
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.legend(loc='best')
+    plt.ylim(ymin=filtered_data_sorted['Yn_elem'].min(), ymax=Depth)
+    
+
+    props = dict(boxstyle="round4,pad=0.30", edgecolor='grey', facecolor=(1, 1, 1, 1), linewidth=2)
+    plt.gcf().text(0.7, 0.2, textstr[0], transform=plt.gca().transAxes, fontsize=12, bbox=props, horizontalalignment='center', verticalalignment='bottom')
+    plt.gcf().text(0.7, 0.1, textstr[1], transform=plt.gca().transAxes, fontsize=12, bbox=props, horizontalalignment='center', verticalalignment='bottom')
+    
+    plt.savefig(f'{la}'+ '_E11_E33_1DY.png', dpi=500, bbox_inches='tight')
     plt.show()
     
       
@@ -337,7 +425,7 @@ def plot_EZY_2D(strain_component, dat):
     total_y_range = sum(yy_ranges[la][1] - yy_ranges[la][0] for la in Structure)
     relative_heights = [(yy_ranges[la][1] - yy_ranges[la][0]) / total_y_range for la in Structure]
 
-    fig, axs = plt.subplots(num_layers, 1, figsize=(8, 6), gridspec_kw={'height_ratios': relative_heights}, sharex=True)
+    fig, axs = plt.subplots(num_layers, 1, figsize=(8, 7), gridspec_kw={'height_ratios': relative_heights}, sharex=True)
 
     plt.subplots_adjust(hspace=0.1)
     
@@ -372,13 +460,15 @@ def plot_EZY_2D(strain_component, dat):
         ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: subtract(x)))
         
         # Add a textbox with layer name
-        ax.text(0.075, 0.5, MyLabels[k], transform=ax.transAxes, fontsize=10, bbox=dict(facecolor='white', alpha=0.5, edgecolor='black', boxstyle='round,pad=0.25'))
+        ax.text(0.075, 0.5, MyLabels[k], transform=ax.transAxes, fontsize=14, bbox=dict(facecolor='white', alpha=0.5, edgecolor='black', boxstyle='round,pad=0.25'))
         
         if k == num_layers - 1:  # Only set xlabel on the last subplot
-            ax.set_xlabel('Transverse Direction (mm)', fontweight='bold', fontsize=12)
-    
-    
-    fig.text(0.050, 0.5, 'Depth (mm)', va='center', rotation='vertical', fontweight='bold', fontsize=12)
+            ax.set_xlabel('Transverse Direction (mm)', fontweight='bold', fontsize=16)
+
+
+        ax.yaxis.set_tick_params(labelsize=14)
+        
+    fig.text(0.025, 0.5, 'Depth (mm)', va='center', rotation='vertical', fontweight='bold', fontsize=16)
     
     # Add a color bar
     cmap = plt.get_cmap('magma')
@@ -387,25 +477,32 @@ def plot_EZY_2D(strain_component, dat):
     sm.set_array([])
     
     cbar = fig.colorbar(sm, ax=axs, orientation='vertical', fraction=0.05, pad=0.04)
-    cbar.set_label(f'{label}'+ ' ' + f'{strain_component}' + ' ' + '$(\mu\epsilon)$', fontweight='bold', fontsize=12)
+    cbar.set_label(f'{label}'+ ' ' + f'{strain_component}' + ' ' + '$(\mu\epsilon)$', fontweight='bold', fontsize=16)
+    cbar.ax.tick_params(labelsize=14)
+    
     
     # plt.title(f'Contour Plot of {strain_component} on ZY Plane', fontweight='bold', fontsize=14)
-    plt.xlabel('Transverse Direction (mm)', fontweight='bold', fontsize=12)
+    plt.xlabel('Transverse Direction (mm)', fontweight='bold', fontsize=16)
+    plt.xticks(fontsize=14)
 
-    # Construct the textbox string with newlines for each piece of information
-    textstr = (f"${strain_component}_{{{la}max}}$: {max_strain_value*1000000:.2f} $\mu\epsilon$")
+    # # Construct the textbox string with newlines for each piece of information
+    # textstr = (f"${strain_component}_{{{la}max}}$: {max_strain_value*1000000:.2f} $\mu\epsilon$")
     
-    # Position the text box in figure coords
-    props = dict(boxstyle="round4,pad=0.5", edgecolor='black', facecolor='white', linewidth=2)
-    fig.text(0.95, legend_height, textstr, transform=axs[Structure.index(la)].transAxes, fontsize=10, bbox=props, 
-             horizontalalignment='right', verticalalignment='bottom')
+    # # Position the text box in figure coords
+    # props = dict(boxstyle="round4,pad=0.5", edgecolor='black', facecolor='white', linewidth=2)
+    # fig.text(0.95, legend_height, textstr, transform=axs[Structure.index(la)].transAxes, fontsize=12, bbox=props, 
+    #         horizontalalignment='right', verticalalignment='bottom')
     
     plt.grid(True)
     # save figure
-    plt.savefig(f'{la}'+ '_' +f'{strain_component}_tire{tstep[0]+idx}_ZYPavSection.png', dpi=500, bbox_inches='tight')
+    plt.savefig(f'{la}'+ '_' +f'{strain_component}_tire{tstep[0]+idx}_ZY-Section.png', dpi=500, bbox_inches='tight')
     plt.show()
         
-    
+
+plot_EZY_2D('E22', myData[min_E22_idx])
+
+
+
 # Longitudinal Cut Along the XY Plane
 def plot_EXY_2D(strain_component, dat):
 
@@ -455,7 +552,7 @@ def plot_EXY_2D(strain_component, dat):
     total_y_range = sum(yy_ranges[la][1] - yy_ranges[la][0] for la in Structure)          
     relative_heights = [(yy_ranges[la][1] - yy_ranges[la][0]) / total_y_range for la in Structure]    
     
-    fig, axs = plt.subplots(num_layers, 1, figsize=(8, 6), gridspec_kw={'height_ratios': relative_heights}, sharex=True)
+    fig, axs = plt.subplots(num_layers, 1, figsize=(8, 7), gridspec_kw={'height_ratios': relative_heights}, sharex=True)
     
     plt.subplots_adjust(hspace=0.1)
     
@@ -492,12 +589,14 @@ def plot_EXY_2D(strain_component, dat):
         ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: subtract(x)))
         
         # Add a textbox with layer name
-        ax.text(0.075, 0.5, MyLabels[k], transform=ax.transAxes, fontsize=10, bbox=dict(facecolor='white', alpha=0.5, edgecolor='black', boxstyle='round,pad=0.25'))
+        ax.text(0.075, 0.5, MyLabels[k], transform=ax.transAxes, fontsize=14, bbox=dict(facecolor='white', alpha=0.5, edgecolor='black', boxstyle='round,pad=0.25'))
 
         if k == num_layers - 1:  # Only set xlabel on the last subplot
-            ax.set_xlabel('Transverse Direction (mm)', fontweight='bold', fontsize=12)
+            ax.set_xlabel('Transverse Direction (mm)', fontweight='bold', fontsize=16)
+            
+        ax.yaxis.set_tick_params(labelsize=14)
 
-    fig.text(0.050, 0.5, 'Depth (mm)', va='center', rotation='vertical', fontweight='bold', fontsize=12)    
+    fig.text(0.025, 0.5, 'Depth (mm)', va='center', rotation='vertical', fontweight='bold', fontsize=16)    
     
     # Add a color bar
     cmap = plt.get_cmap('magma')
@@ -506,25 +605,29 @@ def plot_EXY_2D(strain_component, dat):
     sm.set_array([])
     
     cbar = fig.colorbar(sm, ax=axs, orientation='vertical', fraction=0.05, pad=0.04)
-    cbar.set_label(f'{label}'+ ' ' + f'{strain_component}' + ' ' + '$(\mu\epsilon)$', fontweight='bold', fontsize=12)
-    
+    cbar.set_label(f'{label}'+ ' ' + f'{strain_component}' + ' ' + '$(\mu\epsilon)$', fontweight='bold', fontsize=16)
+    cbar.ax.tick_params(labelsize=14)
     
     #plt.title(f'Contour Plot of {strain_component} on XY Plane', fontweight='bold', fontsize=14)
-    plt.xlabel('Longitudinal Direction (mm)', fontweight='bold', fontsize=12)
+    plt.xlabel('Longitudinal Direction (mm)', fontweight='bold', fontsize=16)
+    plt.xticks(fontsize=14)
     
     # Construct the textbox string with newlines for each piece of information
-    textstr = (f"${strain_component}_{{{la}max}}$: {max_strain_value*1000000:.2f} $\mu\epsilon$")
+    # textstr = (f"${strain_component}_{{{la}max}}$: {max_strain_value*1000000:.2f} $\mu\epsilon$")
     
-    # Position the text box in figure coords
-    props = dict(boxstyle="round4,pad=0.5", edgecolor='black', facecolor='white', linewidth=2)
-    fig.text(0.95, legend_height, textstr, transform=axs[Structure.index(la)].transAxes, fontsize=10, bbox=props, 
-             horizontalalignment='right', verticalalignment='bottom')
+    # # Position the text box in figure coords
+    # props = dict(boxstyle="round4,pad=0.5", edgecolor='black', facecolor='white', linewidth=2)
+    # fig.text(0.95, legend_height, textstr, transform=axs[Structure.index(la)].transAxes, fontsize=10, bbox=props, 
+    #          horizontalalignment='right', verticalalignment='bottom')
     
     plt.grid(True)
     
-    plt.savefig(f'{la}'+ '_' +f'{strain_component}_tire{tstep[0]+idx}_XYPavSection.png', dpi=500, bbox_inches='tight')
+    plt.savefig(f'{la}'+ '_' +f'{strain_component}_tire{tstep[0]+idx}_XY-Section.png', dpi=500, bbox_inches='tight')
     plt.show()
     
+    
+plot_EXY_2D('E22', myData[min_E22_idx])   
+
 ##################################################
 ########           STRESS PLOTS           ######## 
 ##################################################   
@@ -873,6 +976,9 @@ plot_E_1DY('E22', myData[min_E22_idx])
 plot_E_1DY('E11', myData[max_E11_idx])
 plot_E_1DY('E33', myData[max_E33_idx])
 plot_E_1DY('E23', myData[min_E23_idx])
+
+plot_E_1DY_multi(['E11', 'E33'], [myData[max_E11_idx], myData[max_E33_idx]])   
+
 
 plot_EZY_2D('E22', myData[min_E22_idx])
 plot_EZY_2D('E11', myData[max_E11_idx])
