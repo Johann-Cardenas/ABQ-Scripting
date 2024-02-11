@@ -38,11 +38,11 @@ Structure = ['AC1', 'B1', 'SB1', 'SG1']   # Pavement Layers
 MyLabels = ['P-401', 'P-209', 'P-154', 'Subgrade'] # Plot Labels
 Thicks = [75.0, 150.0, 500.0, 14275.0]    # Thickness of each layer
 
-user = 'johan'
+user = 'johannc2'
 directory = f'C:/Users/{user}/Box/FAA Data Project/04_FEM/00_FEM DATA/FAA_South/FAA_South_Responses/{CaseList[0]}/'
 
 # Layer of Analysis
-la = 'AC1'
+la = 'B1'
 
 ##################################################
 ########     Preliminary Calculations     ######## 
@@ -499,10 +499,6 @@ def plot_EZY_2D(strain_component, dat):
     plt.show()
         
 
-plot_EZY_2D('E22', myData[min_E22_idx])
-
-
-
 # Longitudinal Cut Along the XY Plane
 def plot_EXY_2D(strain_component, dat):
 
@@ -625,8 +621,6 @@ def plot_EXY_2D(strain_component, dat):
     plt.savefig(f'{la}'+ '_' +f'{strain_component}_tire{tstep[0]+idx}_XY-Section.png', dpi=500, bbox_inches='tight')
     plt.show()
     
-    
-plot_EXY_2D('E22', myData[min_E22_idx])   
 
 ##################################################
 ########           STRESS PLOTS           ######## 
@@ -965,7 +959,6 @@ def plot_SXY_2D(stress_component, dat):
     
     plt.savefig(f'{la}'+ '_' +f'{stress_component}_tire{tstep[0]+idx}_XYPavSection.png', dpi=500, bbox_inches='tight')
     plt.show()
-
 
     
 ##################################################

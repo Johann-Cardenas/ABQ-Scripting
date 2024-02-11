@@ -27,20 +27,20 @@ import os
 ########            User Inputs           ######## 
 ##################################################
 
-CaseList = ['CC73DS_P5_AC1S_B1_SB1_SG1']
-tstep = [34, 35]                          # Range of time steps to be analyzed
+CaseList = ['CC71DS_P5_AC1S_B1_SB1_SG1']
+tstep = [10, 13]                          # Range of time steps to be analyzed
 
 # Model Dimensions (Update per case)
-L = 35507.0        # Length of the Model
-Xw = 4507.0       # Length of the Wheel Path
-B = 32750.0       # Width of the Model
+L = 32677.0        # Length of the Model
+Xw = 1677.0        # Length of the Wheel Path
+B = 32750.0        # Width of the Model
 Depth = 15000.0    # Total Depth[mm] of the Model
 
 Structure = ['AC1', 'B1', 'SB1', 'SG1']   # Pavement Layers
 Thicks = [75.0, 150.0, 500.0, 14275.0]    # Thickness of each layer
 
 user = 'johannc2'
-directory = f'C:/Users/{user}/Box/FAA Data Project/04_FEM/00_FEM DATA/FAA_North/{CaseList[0]}/'
+directory = f'C:/Users/{user}/Box/FAA Data Project/04_FEM/00_FEM DATA/FAA_South/FAA_South_Responses/{CaseList[0]}/'
 
 # Layer of Analysis
 la = 'AC1'
@@ -60,7 +60,7 @@ MyDef = []
 
 for c in CaseList:
     for ts in range(tstep[0], tstep[-1]):
-        filename = f'{c}_tire{ts}_3Ddata.txt'
+        filename = f'{c}_3DResponse_tire{ts}.txt'
         filepath = os.path.join(directory, filename)
         
         # Remove the header
@@ -157,9 +157,11 @@ def plot_U2(data):
     
     # Add labels and title
     # ax.set_title(f'Surface Deformation (Yn = {Yn_max} mm)', fontweight='bold', fontsize=14)
-    ax.set_xlabel('Length (mm)', fontweight='bold', fontsize=12)
-    ax.set_ylabel('Width (mm)', fontweight='bold', fontsize=12)
-    #ax.set_zlabel(f'Deflection (mm)', fontweight='bold', fontsize=12)
+    ax.set_xlabel('Length (mm)', fontweight='bold', fontsize=14)
+    ax.set_ylabel('Width (mm)', fontweight='bold', fontsize=14)
+    #ax.set_xticks(fontsize=12)
+    #ax.set_yticks(fontsize=12)
+    ##ax.set_zlabel(f'Deflection (mm)', fontweight='bold', fontsize=12)
 
     # Add a color bar which maps values to colors
     cbar = fig.colorbar(surf, ax=ax, shrink=0.6, aspect=10, pad=0.1)
@@ -206,11 +208,11 @@ def plot_U2_2D(data):
     z_min, z_max = -6.00, -0.70
     
     # Create the Countour Plot
-    fig = plt.figure(figsize=(8, 6))
+    fig = plt.figure(figsize=(6, 4))
     
     norm = mcolors.Normalize(vmin=z_min, vmax=z_max)
     contour_filled = plt.contourf(X, Z, U2, cmap='magma', levels=np.linspace(z_min, z_max, 100), norm=norm)
-    contour_lines = plt.contour(X, Z, U2, colors='white', linewidths=0.5, levels=np.linspace(z_min, z_max, 20))
+    contour_lines = plt.contour(X, Z, U2, colors='black', linewidths=0.5, levels=np.linspace(z_min, z_max, 20))
     plt.clabel(contour_lines, inline=True, fontsize=12, fmt='%1.1f')
      
     # Add labels and title

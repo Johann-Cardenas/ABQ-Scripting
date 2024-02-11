@@ -37,7 +37,7 @@ Depth = 15000.0    # Total Depth[mm] of the Model|
 Structure = ['AC1', 'B1', 'SB1', 'SG1']   # Pavement Layers
 Thicks = [75.0, 150.0, 500.0, 14275.0]    # Thickness of each layer
 
-user = 'johan'
+user = 'johannc2'
 directory = f'C:/Users/{user}/Box/FAA Data Project/04_FEM/00_FEM DATA/FAA_South/FAA_South_Responses/{CaseList[0]}/'
 
 # Layer of Analysis
@@ -730,14 +730,14 @@ def plot_S_ZY(stress_component, dat):
     
     if stress_component == 'S11': 
         label = 'Longitudinal Stress' +' '+ f'{stress_component}'+' '+'$(mm)$'
-        z_min, z_max, k, clines = -10.0, 10.0, 1.0, 5
+        z_min, z_max, k, clines = -15.0, 10.0, 1.0, 10
         idx = idxS11
         max_stress_value = data[stress_component].max()
         location = data.loc[max_S11_idx, ['Xn_elem', 'Yn_elem', 'Zn_elem']]
         
     if stress_component == 'S33':
         label = 'Transverse Stress' +' '+ f'{stress_component}'+' '+'$(mm)$'
-        z_min, z_max, k, clines = -5.0, 5.0, 1.0, 5
+        z_min, z_max, k, clines = -15.0, 10.0, 1.0, 8
         idx = idxS33
         max_stress_value = data[stress_component].max()
         location = data.loc[max_S33_idx, ['Xn_elem', 'Yn_elem', 'Zn_elem']]
@@ -751,7 +751,7 @@ def plot_S_ZY(stress_component, dat):
         
     if stress_component == 'S23':
         label = 'Shear Stress' +' '+ f'{stress_component}'+' '+'$(mm)$'
-        z_min, z_max, k, clines = -5.0, 5.0, 1.0, 5
+        z_min, z_max, k, clines = -5.0, 5.0, 1.0, 8
         
         if abs(data[stress_component].max()) >= abs(data[stress_component].min()):
             idx = idxS23max
@@ -816,7 +816,7 @@ def plot_S_ZY(stress_component, dat):
     
     # Position the text box in figure coords
     props = dict(boxstyle="round4,pad=0.5", edgecolor='black', facecolor='white', linewidth=2)
-    plt.text(textbox_x, textbox_y, textstr, transform=plt.gca().transAxes, fontsize=12, bbox=props, 
+    plt.text(textbox_x, textbox_y, textstr, fontsize=12, bbox=props, 
              horizontalalignment='center', verticalalignment='bottom', zorder=5)
     
     # Add an arrow point to the location of the maximum strain
@@ -838,28 +838,28 @@ def plot_S_XY(stress_component, dat):
     
     if stress_component == 'S11':
         label = 'Longitudinal Strain' +' '+ f'{stress_component}'+' '+'$(mm)$'
-        z_min, z_max, k, clines = -5.0, 5.0 , 1.0, 10
+        z_min, z_max, k, clines = -15.0, 10.0 , 1.0, 10
         idx = idxS11
         max_stress_value = data[stress_component].max()
         location = data.loc[max_S11_idx, ['Xn_elem', 'Yn_elem', 'Zn_elem']]
         
     if stress_component == 'S33':
         label = 'Transverse Stress' +' '+ f'{stress_component}'+' '+'$(mm)$'
-        z_min, z_max, k, clines = -5.0, 5.0 , 1.0, 10
+        z_min, z_max, k, clines = -15.0, 10.0 , 1.0, 10
         idx = idxS33
         max_stress_value = data[stress_component].max()
         location = data.loc[max_S33_idx, ['Xn_elem', 'Yn_elem', 'Zn_elem']]
         
     if stress_component == 'S22':
         label = 'Vertical Strain' +' '+ f'{stress_component}'+' '+'$(mm)$'
-        z_min, z_max, k, clines = -5.0, 5.0 , 1.0, 10
+        z_min, z_max, k, clines = -5.0, 5.0 , 1.0, 15
         idx = idxS22
         max_stress_value = data[stress_component].min()
         location = data.loc[min_S22_idx, ['Xn_elem', 'Yn_elem', 'Zn_elem']]
         
     if stress_component == 'S23':
         label = 'Shear Stress' +' '+ f'{stress_component}'+' '+'$(mm)$'
-        z_min, z_max, k, clines = -5.0, 5.0 , 1.0, 10
+        z_min, z_max, k, clines = -5.0, 5.0 , 1.0, 15
         
         if abs(data[stress_component].max()) >= abs(data[stress_component].min()):
             idx = idxS23max
@@ -923,7 +923,7 @@ def plot_S_XY(stress_component, dat):
     
     # Position the text box in figure coords
     props = dict(boxstyle="round4,pad=0.5", edgecolor='black', facecolor='white', linewidth=2)
-    plt.text(textbox_x, textbox_y, textstr, transform=plt.gca().transAxes, fontsize=12, bbox=props, 
+    plt.text(textbox_x, textbox_y, textstr, fontsize=12, bbox=props, 
              horizontalalignment='right', verticalalignment='bottom')
     
     plt.annotate('', xy=(location['Xn_elem'], location['Yn_elem']), xytext=(location['Xn_elem'], location['Yn_elem'] + (y_ranges[la][1]-y_ranges[la][0])/15),
@@ -998,3 +998,4 @@ plot_S_XY('S23', data[idxS23min])
 plot_S_XY('S33', data[idxS33])
 
 #___________________________________________________________________________
+# %%
