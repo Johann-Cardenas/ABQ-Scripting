@@ -37,7 +37,7 @@ row_ct = [4, 4, 5]              # number of frequencies tested per test temp
 Test_tempF = [39.2, 68.0, 113.0] # degF   [4.0, 20.0, 45.0] degC
 
 shift_factors = [19.25, 0, 24.25] # Guesstimate of Shift factors; 0 for reference temp [values should be positive]
-rr = np.logspace(-6,6,12)     # seed values for Prony series fitting; initial assumptions are important; check final plot
+rr = np.logspace(-5.0, 6, 16)     # seed values for Prony series fitting; initial assumptions are important; check final plot
 tref = Test_tempF[1]
 To = (tref-32.)*5./9.           # Reference temp, degC
 rheo_factor = 2*np.pi           # 1  vs 2*np.pi
@@ -202,7 +202,7 @@ b = np.concatenate((b1, b2), axis=0)
 PT=nnls(A,b)
 
 # Predict values using estimated Prony Series
-www = np.logspace(-6,6,250) #
+www = np.logspace(-6,6,400) #
 ttt = 1/(rheo_factor*www) ## convert frequency to time
 
 # Predicted Storage Modulus, E'
@@ -403,11 +403,35 @@ end = time.time()
 print(f"Runtime: {round(end - start,4)} seconds.")
 
 
-#%%
-# Create a table, the columns are ww,ttt, Ep, Epp, Estar_Predict, and Erel
-d = {'ww': www, 'ttt': ttt, 'Ep': Ep_predict, 'Epp': Epp_predict, 'Estar Predicted': Estar_predict, 'Erel': Erel}
-df = pd.DataFrame(data=d)
-df.to_csv('DynamicModPredicted_'+case+'.txt', header=True, index=False, sep='\t', mode='a')
-
-
 #%% Prediction Model
+def predict_modulus(temp_C, freq):
+    C1, C2 = C  # Unpack the WLF coefficients obtained from the earlier fitting
+    log_aT = -C1 * (temp_C - To) / (C2 + temp_C - To)  # Shift factor in log scale
+    reduced_freq = freq * 10**log_aT
+    
+    # Convert frequency to angular frequency
+    w = reduced_freq * rheo_factor
+    
+    if isinstance(PT, tuple):
+        PT_terms = PT[0]
+    else:
+        PT_terms = PT[0]
+    
+    # Calculate storage and loss modulus using Prony series
+    Ep = Einf + np.sum([PT_terms[j] * w**2 * rr[j]**2 / (w**2 * rr[j]**2 + 1) for j in range(len(rr))])
+    Epp = np.sum([PT_terms[j] * w * rr[j] / (w**2 * rr[j]**2 + 1) for j in range(len(rr))])
+    Estar_pred = np.sqrt(Ep**2 + Epp**2)
+
+    return Estar_pred, reduced_freq
+
+
+#%%
+# Inputs
+temp_input = 4 # Temperature in Celsius
+freq_input = 25  # Frequency in Hz
+
+Estar_pred, reduced_freq = predict_modulus(temp_input, freq_input)
+print(f"Reduced Frequency at {temp_input}°C and {freq_input}Hz: {reduced_freq:.2f} ξ")
+print(f"Predicted Dynamic Modulus at {temp_input}°C and {freq_input}Hz: {Estar_pred:.2f} MPa")
+
+    
