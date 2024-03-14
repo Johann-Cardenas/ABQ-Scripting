@@ -6,11 +6,12 @@
    
 #######       OBTAIN PRONY SERIES FROM DYNAMIC MODULUS TEST        ########
 ################             ELECTRIC TRUCKS               ################
-########            Prepared by: Johann J Cardenas               ##########
+########        Authors: Angeli Jayme, Jaime Hernandez           ##########
 ###########################################################################
 
 """
-Last updated on December 17th, 2023.
+Last updated on March 14th, 2024.
+Last modified by Johann J Cardenas
 """
 
 import numpy as np
@@ -31,16 +32,16 @@ plt.close('all') # closes all figures
 start = time.time()
 
 #%% Input Parameters
-case = 'SMA_T1-80-12.5-0 (A)'
+case = '(A) SMA_T1-80-12.5-0'
 row_ct = [4, 4, 5]              # number of frequencies tested per test temp
 Test_tempF = [39.2, 68.0, 113.0] # degF   [4.0, 20.0, 45.0] degC
 
 shift_factors = [19.25, 0, 24.25] # Guesstimate of Shift factors; 0 for reference temp [values should be positive]
-rr = np.logspace(-5,5,16)     # seed values for Prony series fitting; initial assumptions are important; check final plot
+rr = np.logspace(-6,6,12)     # seed values for Prony series fitting; initial assumptions are important; check final plot
 tref = Test_tempF[1]
 To = (tref-32.)*5./9.           # Reference temp, degC
 rheo_factor = 2*np.pi           # 1  vs 2*np.pi
-Einf = 1.0                      # Long-term modulus, MPa
+Einf = 70.0                     # Long-term modulus, MPa, adjust to improve fitting
 
 Test_temp_all = np.concatenate((np.ones(row_ct[0])*Test_tempF[0],
                                 np.ones(row_ct[1])*Test_tempF[1],
@@ -69,7 +70,6 @@ data = {'Test_TempF': Test_temp_all,
         'Delta2':[15.46,  17.09,  21.43,  26.38,      # degrees
                   26.32,  28.15,  31.46,  31.92, 
                   35.64,  36.25,  30.02,  22.78,  17.78]}
-
 
 # Create dataframe
 Summary_Table = pd.DataFrame(data)
@@ -114,7 +114,7 @@ def fitting_model (x, y, xfit):
     return yfit
 
 # Plot local fit per dataset or temp condition for visual check
-fig = plt.figure(figsize=(5, 4))
+fig = plt.figure(figsize=(5, 4), dpi=300)
 
 i = 0
 x = Summary_Table['Log_reduced_freq'][0:row_ct[i]]
@@ -126,7 +126,6 @@ plt.plot(x, y, "b^", label="Test Data" + " " + str(round(tempC[0],1))+" °C")
 plt.plot(xfit, yfit, "b--", label="Fitted Model" + " " + str(round(tempC[0],1))+" °C")
 plt.yscale('log')
 plt.legend(loc='lower right')
-# plt.show()
 
 i = 1
 x = Summary_Table['Log_reduced_freq'][row_ct[0]:sum(row_ct[0:2])]
@@ -138,7 +137,6 @@ plt.plot(x, y, "gs", label="Test Data" + " " + str(round(tempC[1],1))+" °C")
 plt.plot(xfit, yfit, "g--", label="Fitted Model" + " " + str(round(tempC[1],1))+" °C")
 plt.yscale('log')
 plt.legend(loc='lower right')
-# plt.show()
 
 i = 2
 x = Summary_Table['Log_reduced_freq'][sum(row_ct[0:2]):sum(row_ct)]
@@ -150,7 +148,6 @@ plt.plot(x, y, "ro", label="Test Data" + " " + str(round(tempC[2],1))+" °C")
 plt.plot(xfit, yfit, "r--", label="Fitted Model" + " " + str(round(tempC[2],1))+" °C")
 plt.yscale('log')
 plt.legend(loc='lower right')
-# plt.show()
 
 plt.grid(color = 'lightgrey', linestyle = ':', linewidth = 0.50)
 plt.ylabel('Dynamic Modulus (MPa)', fontsize=11.0, fontweight=str('bold'))
@@ -159,7 +156,7 @@ plt.xlabel('Reduced Frequency (Hz)', fontsize=11.0, fontweight=str('bold'))
 plt.tight_layout()
 plt.show()
 fig.savefig('ShiftFit_'+case+'.png',dpi=300)
-# plt.close()
+
 
 
 #%% Write summary table into a text file
@@ -186,7 +183,7 @@ Estar = Summary_Table['Dynamic_Modulus'] # MPa; measured data
 Ep = Summary_Table['E\'']
 Epp = Summary_Table['E\"']
 
-E_0 = max(Estar) ## Instantaneous Modulus
+E_0 = max(Estar) ## Maximum value of Estar
 
 ## Referencing Jaime Hernandez' Dynamic Modulus Code
 rows, cols = (len(ww),len(rr))
@@ -205,7 +202,7 @@ b = np.concatenate((b1, b2), axis=0)
 PT=nnls(A,b)
 
 # Predict values using estimated Prony Series
-www = np.logspace(-6,6,200) #
+www = np.logspace(-6,6,250) #
 ttt = 1/(rheo_factor*www) ## convert frequency to time
 
 # Predicted Storage Modulus, E'
@@ -262,10 +259,8 @@ print('Sum of Squared Errors: Estorage =', round(ERROR_Stor, 4), ', Eloss =', ro
 rows = 2
 cols = 3
 figsize = (10, 6)
-fig, ax = plt.subplots(rows, cols, figsize=figsize)
+fig, ax = plt.subplots(rows, cols, figsize=figsize, dpi=400)
 fig.tight_layout() # Or equivalently,  "plt.tight_layout()"
-# figManager = plt.get_current_fig_manager()
-# figManager.window.showMaximized()
 
 left  = 0.07   # the left side of the subplots of the figure
 right = 0.97   # the right side of the subplots of the figure
@@ -301,7 +296,7 @@ ax1.legend(fontsize=fs,ncol=nc,loc=leg_loc)
 ax1.set_xlim(1E-4, 1E4)
 ax1.set_ylim(1E1, 1E5)
 ax1.set_title('Storage Modulus', fontweight='bold', fontsize=varfs)
-ax1.set_xticks([1E-4, 1E-2, 1E0, 1E2, 1E4, 1E6])
+ax1.set_xticks([1E-6, 1E-4, 1E-2, 1E0, 1E2, 1E4, 1E6])
 ax1.grid(color = lc, linestyle = ls, linewidth = lw)
 
 # #_________________________________________________________________
@@ -319,9 +314,8 @@ ax1.legend(fontsize=fs,ncol=nc,loc='upper left')
 ax1.set_xlim(1E-4, 1E4)
 ax1.set_ylim(1E1, 1E5)
 ax1.set_title('Loss Modulus', fontweight='bold', fontsize=varfs)
-ax1.set_xticks([1E-4, 1E-2, 1E0, 1E2, 1E4, 1E6])
+ax1.set_xticks([1E-6, 1E-4, 1E-2, 1E0, 1E2, 1E4, 1E6])
 ax1.grid(color = lc, linestyle = ls, linewidth = lw)
-
 
 # #_________________________________________________________________
 # ## Phase Angle
@@ -372,11 +366,14 @@ ax1.legend(fontsize=fs,ncol=nc,loc=leg_loc)
 
 #print the value of E_0
 E_0_text = r'$E_0=$' + str(round(E_0,1)) + ' ' + f'MPa'
-ax1.text(1E-3, 1E4, E_0_text, ha='left', rotation=0, family='sans-serif', size=9,  backgroundcolor='w', color='black')
+E_inst_text = r'$E_{inst}=$' + str(round(E_inst,1)) + ' ' + f'MPa'
+
+ax1.text(1E-5, 3E4, E_0_text, ha='left', rotation=0, family='sans-serif', size=9,  backgroundcolor='w', color='black')
+ax1.text(1E-5, 9E3, E_inst_text, ha='left', rotation=0, family='sans-serif', size=9,  backgroundcolor='w', color='black')
 ax1.set_xlim(1E-4, 1E4)
 ax1.set_ylim(1E1, 1E5)
 ax1.set_title('Dynamic Modulus', fontweight='bold', fontsize=varfs)
-ax1.set_xticks([1E-4, 1E-2, 1E0, 1E2, 1E4, 1E6])
+ax1.set_xticks([1E-6, 1E-4, 1E-2, 1E0, 1E2, 1E4, 1E6])
 ax1.grid(color = lc, linestyle = ls, linewidth = lw)
 
 #_________________________________________________________________
@@ -391,7 +388,7 @@ ax1.legend(fontsize=fs,ncol=nc,loc=leg_loc)
 ax1.set_xlim(1E-4, 1E4)
 ax1.set_ylim(1E1, 1E5)
 ax1.set_title('Dynamic Modulus', fontweight='bold', fontsize=varfs)
-ax1.set_xticks([1E-4, 1E-2, 1E0, 1E2, 1E4])
+ax1.set_xticks([1E-6, 1E-4, 1E-2, 1E0, 1E2, 1E4])
 ax1.grid(color = lc, linestyle = ls, linewidth = lw)
 
 plt.tight_layout()
@@ -404,3 +401,13 @@ end = time.time()
 
 # total time taken
 print(f"Runtime: {round(end - start,4)} seconds.")
+
+
+#%%
+# Create a table, the columns are ww,ttt, Ep, Epp, Estar_Predict, and Erel
+d = {'ww': www, 'ttt': ttt, 'Ep': Ep_predict, 'Epp': Epp_predict, 'Estar Predicted': Estar_predict, 'Erel': Erel}
+df = pd.DataFrame(data=d)
+df.to_csv('DynamicModPredicted_'+case+'.txt', header=True, index=False, sep='\t', mode='a')
+
+
+#%% Prediction Model
