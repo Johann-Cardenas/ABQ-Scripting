@@ -8,19 +8,35 @@ import matplotlib.ticker as ticker
 import numpy as np
 from scipy.interpolate import griddata
 
-Cases=['DTA_3D_S1P2V1_FB',
-       'DTA_3D_S1P4V1_FB',
-       'DTA_3D_S1P6V1_FB',
-       'DTA_3D_S1P8V1_FB',
-       'DTA_3D_S1P10V1_FB',
+# Cases=['DTA_3D_S1P2V1_FB',
+#        'DTA_3D_S1P4V1_FB',
+#        'DTA_3D_S1P6V1_FB',
+#        'DTA_3D_S1P8V1_FB',
+#        'DTA_3D_S1P10V1_FB',
+#        'DTA_3D_S1P3V1_FR']
+
+# labels = ['P2_FB', 
+#           'P4_FB', 
+#           'P6_FB', 
+#           'P8_FB', 
+#           'P10_FB',
+#           'P3_FR']
+
+
+Cases=['DTA_3D_S1P2V1_FT',
+       'DTA_3D_S1P4V1_FT',
+       'DTA_3D_S1P6V1_FT',
+       'DTA_3D_S1P8V1_FT',
+       'DTA_3D_S1P10V1_FT',
        'DTA_3D_S1P3V1_FR']
 
-labels = ['P2_FB', 
-          'P4_FB', 
-          'P6_FB', 
-          'P8_FB', 
-          'P10_FB',
+labels = ['P2_FT', 
+          'P4_FT', 
+          'P6_FT', 
+          'P8_FT', 
+          'P10_FT',
           'P3_FR']
+
 
 linestyles= [(0, (4, 1)), 
               (0, (4, 1)),
@@ -29,7 +45,7 @@ linestyles= [(0, (4, 1)),
               (0, (4, 1)),
               'solid',]
 
-fig_profile, ax_profile = plt.subplots(figsize=(4, 3),facecolor='w')
+fig_profile, ax_profile = plt.subplots(figsize=(3.5,3.5), dpi=300, facecolor='w')
 
 # Define a list of colors to use for each dataset
 colors = ['#EDC948', '#F28E2B', '#E15759', '#76B7B2', '#59A14F', '#4E79A7', '#B07AA1', '#FF9DA7', '#9C755F', '#BAB0AC'] #Tableau 10
@@ -77,7 +93,7 @@ for i, case in enumerate(Cases):
     z_profile = zi[y0_index, :]
     
     # Set the font family and size for all text elements
-    plt.rcParams['font.family'] = 'Times New Roman'
+    plt.rcParams['font.family'] = 'Arial'
     plt.rcParams['font.size'] = 12
     
     # Plot the profile with markers and line color set to red
@@ -91,11 +107,10 @@ xlabel_profile = ax_profile.set_xlabel('Length (mm)', labelpad=7.5)
 ylabel_profile = ax_profile.set_ylabel('Stress (MPa)', labelpad=7.5)
     
 # Set the font weight of the axis labels to boldd
-xlabel_profile.set_weight('bold')
-ylabel_profile.set_weight('bold')
+#xlabel_profile.set_weight('bold')
+#ylabel_profile.set_weight('bold')
     
 # Set the lower limit of the Z value axis to 0
-
 
 ax_profile.set_xlim(-150, 150)
 ax_profile.set_xticks([-150, -100, -50, 0, 50, 100, 150])
@@ -105,9 +120,9 @@ ax_profile.set_xticks([-150, -100, -50, 0, 50, 100, 150])
 ax_profile.set_ylim(-0.30, 0.30)   # Longitudinal
 # ax_profile.set_ylim(-0.10, 0.10)   # Transverse
 
-# ax_profile.set_yticks([-1.00, -0.75, -0.50, -0.25, 0, 0.25, 0.50, 0.75, 1.00])  # Vertical
+#ax_profile.set_yticks([-1.00, -0.75, -0.50, -0.25, 0, 0.25, 0.50, 0.75, 1.00])  # Vertical
 ax_profile.set_yticks([-0.30, -0.20, -0.10, 0,  0.10, 0.20, 0.30])  # Longitudinal
-# ax_profile.set_yticks([-0.10, -0.05, 0, 0.05, 0.10])  # Transverse
+#ax_profile.set_yticks([-0.10, -0.05, 0, 0.05, 0.10])  # Transverse
 
 ax_profile.yaxis.set_major_formatter(ticker.FormatStrFormatter('%.2f'))  
 
@@ -115,8 +130,8 @@ ax_profile.yaxis.set_major_formatter(ticker.FormatStrFormatter('%.2f'))
 ax_profile.grid(which='major', linestyle='--', linewidth='1.0', color='#D3D3D3')
 
 # Add a legend
-legend = ax_profile.legend(loc='lower right',
-                           prop={'size': 9, 'family': 'Times New Roman'},
+legend = ax_profile.legend(loc='upper right',
+                           prop={'size': 9, 'family': 'Arial'},
                            ncol=3,
                            columnspacing=1.0,  # Adjust the spacing between columns
                            borderaxespad=0.5,  # Adjust the padding between the legend and the axes
@@ -127,8 +142,11 @@ legend.get_frame().set_facecolor('white')  # Set the background color of the leg
 legend.get_frame().set_edgecolor('black')  # Set the border color of the legend box
 legend.get_frame().set_linewidth(0.5)      # Set the border linewidth of the legend box
 
+# Add title
+title = ax_profile.set_title('Full Acceleration', pad=10.0, fontsize=13, weight='bold')
+
 # Save the file
-plt.savefig("ISAP_2024.png",bbox_inches='tight', dpi=1000)
+#plt.savefig("ISAP_2024.png",bbox_inches='tight', dpi=1000)
 
 # Show the plot
 plt.show()

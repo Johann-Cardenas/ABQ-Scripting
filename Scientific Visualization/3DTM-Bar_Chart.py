@@ -26,21 +26,43 @@ from scipy.interpolate import griddata
 ##################################### INPUT ####################################
 ################################################################################
 
-fig_profile, ax_profile = plt.subplots(figsize=(8, 4),facecolor='w')
-plt.rcParams['font.family'] = 'Times New Roman'
+fig_profile, ax_profile = plt.subplots(figsize=(3.9, 3.3),dpi=300, facecolor='w')
+plt.rcParams['font.family'] = 'Arial'
 
 bar_labels=['Rib1','Rib2','Rib3','Rib4','Rib5']
 
 
-Cases=['DTA_3D_S1P2V1_FB',
-       'DTA_3D_S1P4V1_FB',
-       'DTA_3D_S1P6V1_FB',
-       'DTA_3D_S1P8V1_FB',
-       'DTA_3D_S1P10V1_FB',
+# Cases=['DTA_3D_S1P2V1_FB',
+#        'DTA_3D_S1P4V1_FB',
+#        'DTA_3D_S1P6V1_FB',
+#        'DTA_3D_S1P8V1_FB',
+#        'DTA_3D_S1P10V1_FB',
+#        'DTA_3D_S1P3V1_FR']
+
+# labels = ['P2_FB', 
+#           'P4_FB', 
+#           'P6_FB', 
+#           'P8_FB', 
+#           'P10_FB',
+#           'P3_FR']
+
+
+Cases=['DTA_3D_S1P2V1_FT',
+       'DTA_3D_S1P4V1_FT',
+       'DTA_3D_S1P6V1_FT',
+       'DTA_3D_S1P8V1_FT',
+       'DTA_3D_S1P10V1_FT',
        'DTA_3D_S1P3V1_FR']
 
-labels=['P2_FB','P4_FB','P6_FB','P8_FB','P10_FB','P3_FR']
-colors=['yellow','orange','red','tab:blue','green','blue']
+labels = ['P2_FT', 
+          'P4_FT', 
+          'P6_FT', 
+          'P8_FT', 
+          'P10_FT',
+          'P3_FR']
+
+
+colors = ['yellow','orange','red','tab:blue','green','blue']
 hatches=['////','','----','','\\\\\\\\','']
 
 
@@ -355,19 +377,19 @@ for r, case in enumerate(Cases):
     ############################################################################################        
     ############# PLOT #########################################################################  
     pos = x_pos + r*width - (len(Cases)-1)*width/2
-    plt.bar(pos, FY_rib, width=width, align='center', alpha=0.6, label=labels[r], color=colors[r], hatch=hatches[r])
+    plt.bar(pos, FZ_rib, width=width, align='center', alpha=0.6, label=labels[r], color=colors[r], hatch=hatches[r])
 
 
 
-plt.xticks(x_pos, bar_labels,fontsize=22, fontdict={'fontname': 'Times New Roman'})
-plt.ylabel('Force (N)', fontsize=22, fontdict={'fontname': 'Times New Roman', 'weight': 'bold'})
-plt.yticks(fontsize=20, fontname='Times New Roman')
+plt.xticks(x_pos, bar_labels,fontsize=12, fontdict={'fontname': 'Arial'})
+plt.ylabel('Force (N)', fontsize=12, fontdict={'fontname': 'Arial'})
+plt.yticks(fontsize=12, fontname='Arial')
 
 
-plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), ncol=3, fontsize=18)
-
+plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), ncol=3, fontsize=9)
+title = ax_profile.set_title('Full Acceleration', pad=10.0, fontsize=13, weight='bold')
 plt.grid(color='lightgrey')
 
-plt.savefig("Bar_Transverse_FB.png",bbox_inches='tight', dpi=1000)
+#plt.savefig("Bar_Transverse_FB.png",bbox_inches='tight', dpi=1000)
 plt.show()
 
