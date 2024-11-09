@@ -13,7 +13,8 @@ Hi there! These are my Python scripts to:
 
 ## Requirements
 > [!NOTE]
-> - **Abaqus 2021** or later version. Older output database files need to be upgraded first. 
+> - **Abaqus 2021** or later version. Older output database files need to be upgraded first.
+> - Notice Abaqus 2022 and later updates might contain slightly different commands.
 > - **Python 3** or later version. You might need to install additional packages to run the scripts.
 
 ## Repository Structure
